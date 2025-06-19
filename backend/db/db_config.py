@@ -1,23 +1,47 @@
+# Imports
+# Core SQLModel tools for ORM and DB engine
 from sqlmodel import create_engine, SQLModel, Session
-# create db engine
 
-# setup sqlite database
+# Database Engine Configuration
+
+# SQLite database file name
 sqlite_file_name = "database.db"
+
+# Full SQLite connection URL (used by SQLAlchemy)
 sqlite_url = f"sqlite:///{sqlite_file_name}"
 
+# Connection arguments: Needed for SQLite multithreaded access
 connect_args = {"check_same_thread": False}
-engine = create_engine(sqlite_url, connect_args=connect_args, echo=True)
 
-# create table
+# Create the SQLAlchemy engine
+engine = create_engine(
+    sqlite_url,
+    connect_args=connect_args,
+    echo=True  # Echo SQL queries to console for debugging (turn off in prod)
+)
 
+
+# Database Initialization Function
 
 def create_database_and_tables():
+    """
+    Creates all tables defined by SQLModel models.
+    Called at application startup during development.
+    """
     SQLModel.metadata.create_all(engine)
 
 
+# Session Generator (Dependency)
+
+
 def get_session():
+    """
+    FastAPI dependency function.
+    Opens a new database session and ensures it is closed after use.
+    Yields a session to be injected into route functions.
+    """
     session = Session(engine)
     try:
-        yield session
+        yield session  # Provide session to route
     finally:
-        session.close()
+        session.close()  # Ensure session is closed after request
