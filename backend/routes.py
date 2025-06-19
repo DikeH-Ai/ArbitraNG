@@ -13,7 +13,7 @@ from typing import List, cast  # Type hints
 # Listing ORM + Pydantic read schema
 from backend.db.models.listing import Listing, ListingRead
 # Product ORM + Pydantic read schema
-from backend.db.models.product import Product, ProductRead, ProductCreate, ProductBase
+from backend.db.models.product import Product, ProductRead, ProductCreate, ProductBase, ProductUpdate
 
 
 # Router Setup
@@ -82,3 +82,34 @@ async def create_product(product: ProductCreate, session: Session = Depends(get_
     session.commit()
     session.refresh(db_product)
     return db_product
+
+
+# PUT /product/{product_id}
+@router.patch("/product/{product_id}", response_model=ProductBase)
+async def update_product(product_id: int, product: ProductUpdate, session: Session = Depends(get_session)):
+    """
+    Update/Modify product
+    """
+    product_db = session.get(Product, product_id)
+    if not product_db:
+        raise HTTPException(status_code=404, detail="Product not found")
+    product_data = product.model_dump(exclude_unset=True)
+    product_db.sqlmodel_update(product_data)
+    session.add(product_db)
+    session.commit()
+    session.refresh(product_db)
+    return product_db
+
+
+@router.delete("/product/{product_id}")  # DELETE /product/{product_id}
+async def delete_product(product_id: int, session: Session = Depends(get_session)) -> dict[str, bool]:
+    """
+    Delete Product from database
+    """
+    product = session.get(Product, product_id)
+
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    session.delete(product)
+    session.commit()
+    return {"ok": True}

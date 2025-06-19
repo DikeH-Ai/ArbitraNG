@@ -45,7 +45,7 @@ class Product(SQLModel, table=True):
 
 class ProductBase(SQLModel):
     """
-    Pydantic schema for serializing Product responses.
+    Pydantic schema for product.
     """
     id: int
     title: str
@@ -72,3 +72,12 @@ class ProductCreate(SQLModel):
         default=None, description="Product category (e.g., phone, tablet)")
     image_url: str = Field(
         default=None, description="URL to a representative product image")
+
+
+class ProductUpdate(SQLModel):
+    """
+    Pydantic schema for product update.
+    """
+    title: str | None
+    category: str | None
+    image_url: str | None
