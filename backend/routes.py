@@ -13,7 +13,7 @@ from typing import List, cast  # Type hints
 # Listing ORM + Pydantic read schema
 from backend.db.models.listing import Listing, ListingRead
 # Product ORM + Pydantic read schema
-from backend.db.models.product import Product, ProductRead
+from backend.db.models.product import Product, ProductRead, ProductCreate, ProductBase
 
 
 # Router Setup
@@ -52,4 +52,33 @@ async def get_products(session: Session = Depends(get_session)):
 
     return products
 
-# listing endpoints
+
+# GET /product/
+@router.get("/product/{product_id}", response_model=ProductRead)
+async def get_product(product_id: int, session: Session = Depends(get_session)):
+    """
+    Fetches a product and it's related listings using selectinload to
+    avoid N+1 query problem.
+    Returns a product.
+    """
+    # select product by product id
+    product = session.get(Product, product_id)
+
+    # Not found ?
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    return product
+
+
+@router.post("/product/", response_model=ProductBase)  # POST /product/
+async def create_product(product: ProductCreate, session: Session = Depends(get_session)):
+    """
+    Creates a product.
+    returns a product
+    """
+    db_product = Product.model_validate(product)
+    session.add(db_product)
+    session.commit()
+    session.refresh(db_product)
+    return db_product
