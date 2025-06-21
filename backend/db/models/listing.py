@@ -35,6 +35,7 @@ class Listing(SQLModel, table=True):
     )
     product_id: int = Field(
         foreign_key="product.id",
+        ondelete="CASCADE"
     )
     marketplace: MarketPlace = Field(
         ...,
@@ -56,10 +57,20 @@ class Listing(SQLModel, table=True):
 class ListingRead(SQLModel):
     """
     Pydantic schema for serializing Listing responses.
-    Includes nested ProductRead for context when needed.
     """
     id: int
     product_id: int
     marketplace: MarketPlace
     price: float
-    product_link: HttpUrl
+    product_link: str
+
+# ListingBase Schema
+
+
+class ListingBase(SQLModel):
+    """
+    Pydantic schema for serializing Listing.
+    """
+    marketplace: MarketPlace
+    price: float
+    product_link: str

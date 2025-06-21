@@ -38,7 +38,7 @@ class Product(SQLModel, table=True):
     )
 
     # Relationship to listings: one product can have many listings
-    listings: List["Listing"] = Relationship()
+    listings: List["Listing"] = Relationship(cascade_delete=True)
 
 
 # ProductRead Pydantic Schema

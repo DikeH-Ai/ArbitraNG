@@ -1,6 +1,7 @@
 # Imports
 # Core SQLModel tools for ORM and DB engine
 from sqlmodel import create_engine, SQLModel, Session
+from sqlalchemy import event
 
 # Database Engine Configuration
 
@@ -20,8 +21,18 @@ engine = create_engine(
     echo=True  # Echo SQL queries to console for debugging (turn off in prod)
 )
 
+# Enable FK enforcement on each new SQLite connection
+
+
+@event.listens_for(engine, "connect")
+def _enable_sqlite_fks(dbapi_con, con_record):
+    # dbapi_con is a raw sqlite3.Connection
+    cursor = dbapi_con.cursor()
+    cursor.execute("PRAGMA foreign_keys=ON;")
+    cursor.close()
 
 # Database Initialization Function
+
 
 def create_database_and_tables():
     """
