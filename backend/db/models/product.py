@@ -3,11 +3,11 @@ from sqlmodel import SQLModel, Field, Relationship  # Core SQLModel classes
 from datetime import datetime, timezone            # Timestamp handling
 # Type hints & avoiding circular imports
 from typing import TYPE_CHECKING, List
-from .listing import Listing, ListingRead
+from .listing import Listing, ListingBase
 
 # Avoid circular imports by importing during type checking only
 if TYPE_CHECKING:
-    from .listing import Listing, ListingRead     # Used only for type annotations
+    from .listing import Listing, ListingBase     # Used only for type annotations
 
 
 # Product ORM Model
@@ -59,7 +59,7 @@ class ProductRead(ProductBase):
     Includes nested listings as ListingRead.
     """
     # Nested Pydantic schema for related listings
-    listings: List[ListingRead]
+    listings: List[ListingBase]
 
 
 class ProductCreate(SQLModel):

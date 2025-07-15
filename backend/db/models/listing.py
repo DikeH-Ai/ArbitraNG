@@ -1,7 +1,6 @@
 # Imports
-from sqlmodel import SQLModel, Field, Relationship
+from sqlmodel import SQLModel, Field
 from enum import Enum
-from pydantic import HttpUrl
 
 
 # MarketPlace Enum
@@ -33,7 +32,7 @@ class Listing(SQLModel, table=True):
         default=None,
         primary_key=True,
     )
-    product_id: int = Field(
+    product_id: int | None = Field(  # remove None option during deployment
         foreign_key="product.id",
         ondelete="CASCADE"
     )
@@ -50,19 +49,14 @@ class Listing(SQLModel, table=True):
         ...,
         description="Fully-qualified URL to the seller's product page"
     )
-
-
-# ListingRead Pydantic Schema
-
-class ListingRead(SQLModel):
-    """
-    Pydantic schema for serializing Listing responses.
-    """
-    id: int
-    product_id: int
-    marketplace: MarketPlace
-    price: float
-    product_link: str
+    title: str = Field(
+        ...,
+        description="Title of the product listing"
+    )
+    image_url: str = Field(
+        ...,
+        description="URL of the product image"
+    )
 
 # ListingBase Schema
 
@@ -71,6 +65,21 @@ class ListingBase(SQLModel):
     """
     Pydantic schema for serializing Listing.
     """
+    id: int
+    product_id: int | None = None
+    title: str
     marketplace: MarketPlace
     price: float
+    image_url: str
+    product_link: str
+
+
+class ListingWrite(SQLModel):
+    """
+    Schema for creating listing
+    """
+    title: str
+    marketplace: MarketPlace
+    price: float
+    image_url: str
     product_link: str

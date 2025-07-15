@@ -11,7 +11,7 @@ from sqlalchemy.orm.attributes import InstrumentedAttribute
 from fastapi import Depends, APIRouter, HTTPException
 from typing import List, cast  # Type hints
 # Listing ORM + Pydantic read schema
-from backend.db.models.listing import Listing, ListingRead, ListingBase
+from backend.db.models.listing import Listing, ListingWrite, ListingBase
 # Product ORM + Pydantic read schema
 from backend.db.models.product import Product, ProductRead, ProductCreate, ProductBase, ProductUpdate
 
@@ -130,7 +130,7 @@ async def delete_product(product_id: int, session: Session = Depends(get_session
 # Listing Endpoints
 
 # GET /products/{product_id}/listings/
-@router.get("/products/{product_id}/listings/", response_model=List[ListingRead])
+@router.get("/products/{product_id}/listings/", response_model=List[ListingBase])
 async def get_product_listing(product_id: int, session: Session = Depends(get_session)):
     """
     Fetch all listings of a Product
@@ -144,8 +144,8 @@ async def get_product_listing(product_id: int, session: Session = Depends(get_se
 
 
 # POST /products/{product_id}/listings/
-@router.post("/products/{product_id}/listings/", response_model=ListingRead)
-async def create_product_listing(product_id: int, listing_in: ListingBase, session: Session = Depends(get_session)):
+@router.post("/products/{product_id}/listings/", response_model=ListingBase)
+async def create_product_listing(product_id: int, listing_in: ListingWrite, session: Session = Depends(get_session)):
     """
     Create listing using product_id as foreign_key
     """
